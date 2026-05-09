@@ -1,0 +1,50 @@
+{
+  "bsonType": "object",
+  "title": "频率限制",
+  "description": "API 调用频率限制计数",
+  "required": ["user_id", "date", "count"],
+  "permission": {
+    "read": "doc.user_id == auth.uid",
+    "create": "doc.user_id == auth.uid",
+    "update": "doc.user_id == auth.uid",
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "bsonType": "objectId",
+      "description": "主键，云数据库自动生成"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "description": "用户标识",
+      "label": "用户 ID",
+      "trim": "both"
+    },
+    "date": {
+      "bsonType": "string",
+      "description": "日期（YYYY-MM-DD 格式）",
+      "label": "日期",
+      "trim": "both"
+    },
+    "count": {
+      "bsonType": "int",
+      "description": "当日调用次数",
+      "label": "调用次数",
+      "defaultValue": 0,
+      "minimum": 0
+    },
+    "updated_at": {
+      "bsonType": "timestamp",
+      "description": "最后更新时间",
+      "label": "更新时间"
+    }
+  },
+  "indexs": [
+    {
+      "name": "idx_user_date",
+      "keys": { "user_id": 1, "date": 1 },
+      "unique": true,
+      "description": "用户每日限额唯一索引"
+    }
+  ]
+}

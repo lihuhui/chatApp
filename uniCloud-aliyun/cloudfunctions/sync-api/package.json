@@ -1,0 +1,6 @@
+{
+  "name": "sync-api",
+  "version": "1.0.0",
+  "description": "跨端同步 API 云函数",
+  "main": "index.js"
+}

@@ -1,0 +1,22 @@
+/**
+ * app_config — 应用配置
+ *
+ * 用于存储用户级配置，如每日限流计数。
+ * 每条记录对应一个用户一天的数据。
+ *
+ * 字段：
+ *   user_id           — 用户标识
+ *   daily_quota_used  — 今日已用配额
+ *   quota_date        — 配额日期 (YYYY-MM-DD)
+ */
+{
+  "app_config": {
+    "data": [],
+    "indexes": [
+      {
+        "name": "user_id_1_quota_date_1",
+        "keys": { "user_id": 1, "quota_date": 1 }
+      }
+    ]
+  }
+}

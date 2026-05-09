@@ -1,0 +1,32 @@
+/**
+ * sessions — 会话
+ *
+ * 字段：
+ *   user_id     — 所属用户
+ *   role_id     — 关联角色 ID
+ *   round_count — 当前轮数
+ *   status      — active / archived
+ */
+{
+  "sessions": {
+    "data": [],
+    "indexes": [
+      {
+        "name": "user_id_1",
+        "keys": { "user_id": 1 }
+      },
+      {
+        "name": "role_id_1",
+        "keys": { "role_id": 1 }
+      },
+      {
+        "name": "status_1",
+        "keys": { "status": 1 }
+      },
+      {
+        "name": "updated_at_-1",
+        "keys": { "updated_at": -1 }
+      }
+    ]
+  }
+}

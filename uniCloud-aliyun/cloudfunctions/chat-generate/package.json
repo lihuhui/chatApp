@@ -1,0 +1,6 @@
+{
+  "name": "chat-generate",
+  "version": "1.0.0",
+  "description": "AI 对话生成 — 检查配额 → 调用大模型 → 持久化 → 返回回复",
+  "dependencies": {}
+}

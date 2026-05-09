@@ -1,0 +1,81 @@
+{
+  "bsonType": "object",
+  "title": "角色",
+  "description": "用户创建的 AI 角色",
+  "required": ["user_id", "name"],
+  "permission": {
+    "read": "doc.user_id == auth.uid",
+    "create": "doc.user_id == auth.uid",
+    "update": "doc.user_id == auth.uid",
+    "delete": "doc.user_id == auth.uid"
+  },
+  "properties": {
+    "_id": {
+      "bsonType": "objectId",
+      "description": "主键，云数据库自动生成"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "description": "用户标识",
+      "label": "用户 ID",
+      "trim": "both"
+    },
+    "name": {
+      "bsonType": "string",
+      "description": "角色名称",
+      "label": "角色名",
+      "minLength": 1,
+      "maxLength": 50,
+      "trim": "both"
+    },
+    "avatar": {
+      "bsonType": "string",
+      "description": "角色头像 URL",
+      "label": "头像",
+      "defaultValue": "",
+      "trim": "both"
+    },
+    "style_features": {
+      "bsonType": "string",
+      "description": "风格特征 JSON 字符串（不可逆提取结果）",
+      "label": "风格特征",
+      "defaultValue": "",
+      "maxLength": 50000
+    },
+    "message_count": {
+      "bsonType": "int",
+      "description": "用于特征提取的原始消息数",
+      "label": "消息数",
+      "defaultValue": 0,
+      "minimum": 0
+    },
+    "created_at": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "label": "创建时间"
+    },
+    "updated_at": {
+      "bsonType": "timestamp",
+      "description": "最后更新时间",
+      "label": "更新时间"
+    }
+  },
+  "indexs": [
+    {
+      "name": "idx_user_id",
+      "keys": { "user_id": 1 },
+      "description": "按用户查询索引"
+    },
+    {
+      "name": "idx_user_name",
+      "keys": { "user_id": 1, "name": 1 },
+      "unique": true,
+      "description": "用户下角色名唯一"
+    },
+    {
+      "name": "idx_updated_at",
+      "keys": { "updated_at": -1 },
+      "description": "按更新时间排序"
+    }
+  ]
+}

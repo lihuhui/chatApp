@@ -1,0 +1,25 @@
+/**
+ * messages — 消息
+ *
+ * 字段：
+ *   session_id  — 所属会话
+ *   sender      — user / assistant
+ *   content     — 消息内容
+ *   tokens_used — 消耗 token 数（仅 assistant 回复有值）
+ *   created_at  — 发送时间
+ */
+{
+  "messages": {
+    "data": [],
+    "indexes": [
+      {
+        "name": "session_id_1",
+        "keys": { "session_id": 1 }
+      },
+      {
+        "name": "created_at_1",
+        "keys": { "created_at": 1 }
+      }
+    ]
+  }
+}

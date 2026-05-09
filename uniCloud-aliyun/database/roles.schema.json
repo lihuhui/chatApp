@@ -1,0 +1,33 @@
+/**
+ * uniCloud 数据库初始化
+ *
+ * 部署方式：
+ *   1. HBuilder X 中打开项目
+ *   2. 右键 uniCloud-aliyun → 上传 DB Schema
+ *   3. 或使用 CLI: npx uni-cloud-cli upload-db
+ *
+ * 集合说明：
+ *   roles       — 角色（从 App 端同步到云端）
+ *   sessions    — 会话
+ *   messages    — 消息
+ *   app_config  — 应用配置（限流计数等）
+ */
+
+// ========================================
+// roles — 角色
+// ========================================
+{
+  "roles": {
+    "data": [],
+    "indexes": [
+      {
+        "name": "user_id_1",
+        "keys": { "user_id": 1 }
+      },
+      {
+        "name": "created_at_-1",
+        "keys": { "created_at": -1 }
+      }
+    ]
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "bsonType": "object",
+  "title": "消息",
+  "description": "对话消息记录",
+  "required": ["session_id", "sender", "content"],
+  "permission": {
+    "read": "doc.user_id == auth.uid",
+    "create": "doc.user_id == auth.uid",
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "bsonType": "objectId",
+      "description": "主键，云数据库自动生成"
+    },
+    "session_id": {
+      "bsonType": "string",
+      "description": "关联会话 ID",
+      "label": "会话 ID",
+      "trim": "both"
+    },
+    "role_id": {
+      "bsonType": "string",
+      "description": "关联角色 ID（冗余，便于查询）",
+      "label": "角色 ID",
+      "defaultValue": "",
+      "trim": "both"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "description": "用户标识（冗余，便于权限校验）",
+      "label": "用户 ID",
+      "defaultValue": "",
+      "trim": "both"
+    },
+    "sender": {
+      "bsonType": "string",
+      "description": "发送者：user / ai",
+      "label": "发送者",
+      "enum": ["user", "ai"],
+      "trim": "both"
+    },
+    "content": {
+      "bsonType": "string",
+      "description": "消息内容",
+      "label": "内容",
+      "maxLength": 10000,
+      "trim": "both"
+    },
+    "type": {
+      "bsonType": "string",
+      "description": "消息类型：text / image / system",
+      "label": "类型",
+      "defaultValue": "text",
+      "enum": ["text", "image", "system"],
+      "trim": "both"
+    },
+    "created_at": {
+      "bsonType": "timestamp",
+      "description": "消息时间",
+      "label": "发送时间"
+    }
+  },
+  "indexs": [
+    {
+      "name": "idx_session_id",
+      "keys": { "session_id": 1 },
+      "description": "按会话查询消息"
+    },
+    {
+      "name": "idx_session_created",
+      "keys": { "session_id": 1, "created_at": 1 },
+      "description": "按会话查询并按时间排序"
+    },
+    {
+      "name": "idx_role_id",
+      "keys": { "role_id": 1 },
+      "description": "按角色查询消息"
+    }
+  ]
+}

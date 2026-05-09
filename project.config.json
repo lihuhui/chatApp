@@ -1,0 +1,20 @@
+{
+  "description": "AI 模拟对话 - 微信小程序配置",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": false,
+    "minified": false,
+    "bigPackageSizeSupport": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.3.4",
+  "appid": "your_appid_here",
+  "projectname": "AI 模拟对话",
+  "condition": {
+    "search": { "current": -1, "list": [] },
+    "conversation": { "current": -1, "list": [] },
+    "game": { "current": -1, "list": [] },
+    "miniprogram": { "current": -1, "list": [] }
+  }
+}

@@ -1,0 +1,69 @@
+// ========================================
+// 通用组件设计系统 — "暖墨" (Warm Ink)
+// 暖纸色调 + 墨玉点缀 + 琥珀提亮
+// ========================================
+
+// === 颜色 ===
+$ink-bg: #F7F5F0;            // 暖纸底色
+$ink-surface: #FFFFFF;        // 表面白
+$ink-primary: #2A9D8F;        // 墨玉青（主色，区别于微信绿）
+$ink-primary-light: #E8F5F2;  // 墨玉青淡
+$ink-primary-dark: #1E7A6E;   // 墨玉青深
+$ink-accent: #E9C46A;         // 琥珀金
+$ink-coral: #E76F51;          // 珊瑚橙
+$ink-text: #1D1D1F;           // 墨黑
+$ink-text-secondary: #8E8E93; // 灰
+$ink-text-tertiary: #B8B8BD;  // 浅灰
+$ink-border: #E8E6E1;         // 边框
+$ink-error: #D15252;          // 错误红
+$ink-error-light: #FDF0F0;    // 错误红淡
+$ink-success: #2A9D8F;        // 成功绿
+$ink-success-light: #E8F5F2;  // 成功绿淡
+$ink-warning: #D4A84B;        // 警告黄
+$ink-warning-light: #FDF6E8;  // 警告黄淡
+
+// === 圆角 ===
+$radius-sm: 8rpx;
+$radius-md: 12rpx;
+$radius-lg: 20rpx;
+$radius-full: 9999rpx;
+
+// === 阴影 ===
+$shadow-sm: 0 2rpx 8rpx rgba(29, 29, 31, 0.06);
+$shadow-md: 0 4rpx 20rpx rgba(29, 29, 31, 0.08);
+$shadow-lg: 0 8rpx 40rpx rgba(29, 29, 31, 0.12);
+
+// === 字号 ===
+$font-xs: 22rpx;
+$font-sm: 24rpx;
+$font-base: 26rpx;
+$font-md: 28rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-xxl: 48rpx;
+
+// === 间距 ===
+$spacing-xs: 8rpx;
+$spacing-sm: 12rpx;
+$spacing-md: 16rpx;
+$spacing-lg: 20rpx;
+$spacing-xl: 24rpx;
+$spacing-xxl: 40rpx;
+
+// === 动画 ===
+$transition-fast: 0.2s ease;
+$transition-base: 0.3s ease;
+$transition-slow: 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+$ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+$ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+// === 骨架屏 shimmer 参数 ===
+$skeleton-shimmer: linear-gradient(
+  90deg,
+  $ink-border 25%,
+  #F0EFE9 37%,
+  $ink-border 63%
+);
+
+// === 装订线 ===
+$binding-width: 6rpx;

@@ -1,0 +1,86 @@
+{
+  "bsonType": "object",
+  "title": "会话",
+  "description": "角色对话会话",
+  "required": ["role_id", "user_id"],
+  "permission": {
+    "read": "doc.user_id == auth.uid",
+    "create": "doc.user_id == auth.uid",
+    "update": "doc.user_id == auth.uid",
+    "delete": "doc.user_id == auth.uid"
+  },
+  "properties": {
+    "_id": {
+      "bsonType": "objectId",
+      "description": "主键，云数据库自动生成"
+    },
+    "role_id": {
+      "bsonType": "string",
+      "description": "关联角色 ID",
+      "label": "角色 ID",
+      "trim": "both"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "description": "用户标识",
+      "label": "用户 ID",
+      "trim": "both"
+    },
+    "title": {
+      "bsonType": "string",
+      "description": "会话标题",
+      "label": "标题",
+      "defaultValue": "新对话",
+      "maxLength": 200,
+      "trim": "both"
+    },
+    "round_count": {
+      "bsonType": "int",
+      "description": "对话轮数",
+      "label": "轮数",
+      "defaultValue": 0,
+      "minimum": 0,
+      "maximum": 999
+    },
+    "status": {
+      "bsonType": "string",
+      "description": "会话状态：active（进行中）/ full（已达上限）/ archived（已归档）",
+      "label": "状态",
+      "defaultValue": "active",
+      "enum": ["active", "full", "archived"],
+      "trim": "both"
+    },
+    "created_at": {
+      "bsonType": "timestamp",
+      "description": "创建时间",
+      "label": "创建时间"
+    },
+    "updated_at": {
+      "bsonType": "timestamp",
+      "description": "最后消息时间",
+      "label": "更新时间"
+    }
+  },
+  "indexs": [
+    {
+      "name": "idx_role_id",
+      "keys": { "role_id": 1 },
+      "description": "按角色查询会话"
+    },
+    {
+      "name": "idx_user_id",
+      "keys": { "user_id": 1 },
+      "description": "按用户查询会话"
+    },
+    {
+      "name": "idx_updated_at",
+      "keys": { "updated_at": -1 },
+      "description": "按更新时间排序"
+    },
+    {
+      "name": "idx_role_updated",
+      "keys": { "role_id": 1, "updated_at": -1 },
+      "description": "按角色查询并按时间排序"
+    }
+  ]
+}
