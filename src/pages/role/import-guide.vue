@@ -1,20 +1,24 @@
 <template>
   <PageContainer title="导入聊天记录">
-    <view class="step-list stagger-enter">
-      <view class="step" v-for="(s, i) in steps" :key="i" :style="{ animationDelay: i * 0.12 + 's' }">
-        <view class="step-num">
-          <text>{{ i + 1 }}</text>
+    <view class="card-list stagger-enter">
+      <view
+        class="method-card press-scale"
+        v-for="(m, i) in methods"
+        :key="i"
+        :style="{ animationDelay: i * 0.12 + 's' }"
+        @click="onSelect(m.mode)"
+      >
+        <view class="card-body">
+          <view class="card-header">
+            <text class="card-icon">{{ m.icon }}</text>
+            <view class="card-info">
+              <text class="card-title">{{ m.title }}</text>
+              <text class="card-recommended" v-if="m.recommended">推荐</text>
+            </view>
+          </view>
+          <text class="card-desc">{{ m.desc }}</text>
         </view>
-        <view class="step-content">
-          <text class="step-title">{{ s.title }}</text>
-          <text class="step-desc">{{ s.desc }}</text>
-        </view>
-      </view>
-    </view>
-    <view class="next-btn-wrap" style="padding: 0 24rpx">
-      <view class="next-btn press-scale" @click="goNext">
-        <text class="next-label">我已准备好聊天记录</text>
-        <text class="next-arrow">→</text>
+        <text class="card-arrow">→</text>
       </view>
     </view>
   </PageContainer>
@@ -29,18 +33,29 @@ export default {
   components: { PageContainer },
   setup() {
     const importStore = useImportStore()
-    const steps = ref([
-      { title: '打开微信', desc: '进入你想分析的好友/群聊对话' },
-      { title: '复制聊天记录', desc: '长按消息区域，选择"多选"后复制' },
-      { title: '粘贴到 App', desc: '返回本 App，在下一步粘贴完整内容' }
+    const methods = ref([
+      {
+        icon: ' ',
+        title: '截图识别',
+        desc: '截取微信聊天截图，自动识别文字内容',
+        mode: 'ocr',
+        recommended: true
+      },
+      {
+        icon: ' ',
+        title: '手动粘贴',
+        desc: '从微信复制聊天记录，直接粘贴到 App',
+        mode: 'paste',
+        recommended: false
+      }
     ])
 
-    function goNext() {
+    function onSelect(mode) {
       importStore.goToStep('paste')
-      uni.navigateTo({ url: '/pages/role/import-parse' })
+      uni.navigateTo({ url: `/pages/role/import-parse?mode=${mode}` })
     }
 
-    return { steps, goNext }
+    return { methods, onSelect }
   }
 }
 </script>
@@ -48,15 +63,15 @@ export default {
 <style lang="scss" scoped>
 @use '../../components/common/variables' as *;
 
-.step-list { padding: 24rpx; }
+.card-list { padding: 24rpx; }
 
-.step {
+.method-card {
   display: flex;
+  align-items: center;
   background: $ink-surface;
   border-radius: $radius-md;
-  padding: 30rpx;
+  padding: 36rpx 30rpx;
   margin-bottom: 20rpx;
-  align-items: flex-start;
   box-shadow: $shadow-sm;
   border-left: $binding-width solid $ink-primary-light;
   transition: border-color $transition-fast;
@@ -66,66 +81,54 @@ export default {
   }
 }
 
-.step-num {
-  width: 48rpx;
-  height: 48rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $ink-primary, $ink-primary-dark);
-  color: #fff;
-  text-align: center;
-  line-height: 48rpx;
-  font-size: $font-md;
-  margin-right: 20rpx;
-  flex-shrink: 0;
-  font-weight: 600;
+.card-body { flex: 1; }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 10rpx;
 }
 
-.step-content { flex: 1; }
+.card-icon { font-size: 40rpx; }
 
-.step-title {
+.card-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.card-title {
   font-size: $font-md;
   font-weight: 600;
   color: $ink-text;
-  display: block;
-  margin-bottom: 8rpx;
 }
 
-.step-desc {
+.card-recommended {
+  font-size: $font-xs;
+  color: $ink-primary;
+  background: $ink-primary-light;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-full;
+  font-weight: 500;
+}
+
+.card-desc {
   font-size: $font-sm;
   color: $ink-text-secondary;
   line-height: 1.6;
+  display: block;
+  margin-left: 52rpx;
 }
 
-.next-btn-wrap {
-  margin-top: 16rpx;
-}
-
-.next-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12rpx;
-  height: 88rpx;
-  background: linear-gradient(135deg, $ink-primary, $ink-primary-dark);
-  color: #fff;
-  border-radius: $radius-md;
-  font-size: $font-md;
-  font-weight: 600;
-  letter-spacing: 2rpx;
-  box-shadow: 0 4rpx 16rpx rgba(42, 157, 143, 0.25);
-}
-
-.next-label {
-  line-height: 1;
-}
-
-.next-arrow {
+.card-arrow {
   font-size: 28rpx;
-  line-height: 1;
+  color: $ink-text-tertiary;
+  flex-shrink: 0;
   transition: transform $transition-fast;
 }
 
-.next-btn:active .next-arrow {
+.method-card:active .card-arrow {
   transform: translateX(6rpx);
 }
 </style>

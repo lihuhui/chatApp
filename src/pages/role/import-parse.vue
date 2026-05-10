@@ -1,27 +1,88 @@
 <template>
   <view class="page">
-    <!-- Phase 1: 粘贴输入 -->
+    <!-- Phase 1: 输入 -->
     <template v-if="phase === 'input'">
       <view class="phase-input stagger-enter">
-        <view class="phase-header" style="animation-delay: 0s">
-          <text class="phase-title">粘贴聊天记录</text>
-          <text class="phase-desc">从微信复制聊天记录，粘贴到下方区域</text>
+
+        <!-- OCR 模式：截图上传区域 -->
+        <template v-if="inputMode === 'ocr'">
+          <view class="phase-header" style="animation-delay: 0s">
+            <text class="phase-title">截图识别</text>
+            <text class="phase-desc">选择微信聊天截图，自动识别文字</text>
+          </view>
+
+          <view class="ocr-section" style="animation-delay: 0.08s">
+            <!-- 图片预览网格 -->
+            <view v-if="images.length > 0" class="image-grid">
+              <view class="image-item" v-for="(img, i) in images" :key="i">
+                <image class="image-thumb" :src="img" mode="aspectFill" />
+                <view class="image-delete" @click.stop="removeImage(i)">
+                  <text class="delete-icon">×</text>
+                </view>
+              </view>
+            </view>
+
+            <!-- 添加图片按钮 -->
+            <view
+              class="add-image-btn press-scale"
+              :class="{ 'add-btn-compact': images.length > 0 }"
+              @click="chooseImages"
+              v-if="images.length < 9"
+            >
+              <text class="add-icon">+</text>
+              <text class="add-text">{{ images.length > 0 ? '继续添加' : '添加截图' }}</text>
+            </view>
+
+            <!-- 识别按钮 -->
+            <view
+              v-if="images.length > 0"
+              class="ocr-btn press-scale"
+              @click="onOcrRecognize"
+            >
+              <text class="ocr-btn-label">识别文字</text>
+            </view>
+          </view>
+        </template>
+
+        <!-- 粘贴模式：textarea -->
+        <template v-if="inputMode === 'paste'">
+          <view class="phase-header" style="animation-delay: 0s">
+            <text class="phase-title">粘贴聊天记录</text>
+            <text class="phase-desc">从微信复制聊天记录，粘贴到下方区域</text>
+          </view>
+        </template>
+
+        <!-- 识别结果 / 手动输入 textarea -->
+        <view v-if="inputMode === 'paste' || rawText" class="text-area-wrap" :style="{ animationDelay: inputMode === 'paste' ? '0.08s' : '0s' }">
+          <view v-if="inputMode === 'ocr' && rawText" class="ocr-result-label">
+            <text class="result-tag">识别结果</text>
+          </view>
+          <textarea
+            class="paste-area"
+            v-model="rawText"
+            :placeholder="inputMode === 'ocr' ? '识别结果将显示在此，你也可以手动修改…' : '在此粘贴聊天记录...'"
+            maxlength="-1"
+          />
         </view>
-        <textarea
-          class="paste-area"
-          v-model="rawText"
-          placeholder="在此粘贴聊天记录..."
-          maxlength="-1"
-          style="animation-delay: 0.08s"
-        />
-        <view class="tips press-scale" style="animation-delay: 0.12s" @click="showFormatTips">
-          <text class="tip-icon">📖</text>
+
+        <!-- 格式提示 -->
+        <view v-if="inputMode === 'paste' || rawText" class="tips press-scale" @click="showFormatTips" style="animation-delay: 0.12s">
+          <text class="tip-icon"> </text>
           <text class="tip-text">支持 iOS / Android / PC 三种格式</text>
         </view>
+
+        <!-- 超量警告 -->
         <view v-if="messageCount > 3000" class="warning-banner" style="animation-delay: 0.16s">
           <text class="warning-text">⚠️ 消息超过 3000 条（共 {{ messageCount }} 条），建议只粘贴最近一段时间的记录</text>
         </view>
-        <view class="parse-btn-wrap" style="animation-delay: 0.2s">
+
+        <!-- 切换方式 -->
+        <view class="mode-switch" style="animation-delay: 0.2s" @click="toggleMode">
+          <text class="switch-text">{{ inputMode === 'ocr' ? '切换到手动粘贴' : '切换到截图识别' }}</text>
+        </view>
+
+        <!-- 解析按钮 -->
+        <view class="parse-btn-wrap" style="animation-delay: 0.24s" v-if="inputMode === 'paste' || rawText">
           <view
             class="parse-btn press-scale"
             :class="{ 'btn-disabled': !rawText.trim() || parsing }"
@@ -34,12 +95,19 @@
       </view>
     </template>
 
-    <!-- Phase 2: 解析中 -->
+    <!-- Phase 2: OCR 识别中 -->
+    <view v-if="phase === 'ocr-processing'" class="phase-center">
+      <view class="ocr-processing-view">
+        <Loading type="dots" text="正在识别截图文字…" />
+      </view>
+    </view>
+
+    <!-- Phase 3: 解析中 -->
     <view v-if="phase === 'parsing'" class="phase-center">
       <Loading type="dots" text="正在解析聊天记录…" />
     </view>
 
-    <!-- Phase 3: 解析结果 + 说话人选择 -->
+    <!-- Phase 4: 解析结果 + 说话人选择 -->
     <template v-if="phase === 'result' && parseResult">
       <view class="phase-result stagger-enter">
         <ParseResultPreview
@@ -58,17 +126,17 @@
       </view>
     </template>
 
-    <!-- Phase 4: 特征提取中 -->
+    <!-- Phase 5: 特征提取中 -->
     <view v-if="phase === 'extracting'" class="phase-center">
       <view class="extracting-view">
-        <view class="extracting-icon">🔍</view>
+        <view class="extracting-icon"> </view>
         <text class="extracting-text">正在分析语言风格特征…</text>
         <ProgressBar :progress="progress" />
         <text class="extracting-hint">分析完成后自动跳转报告页</text>
       </view>
     </view>
 
-    <!-- Phase 5: 错误状态 -->
+    <!-- Phase 6: 错误状态 -->
     <ErrorState
       v-if="phase === 'error'"
       :message="errorMessage"
@@ -83,6 +151,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { useImportStore } from '@/store'
 import { parse } from '@/utils/parser'
 import { generate } from '@/utils/features'
+import { ocrRecognize } from '@/utils/ocr'
 import Loading from '@/components/common/Loading.vue'
 import ErrorState from '@/components/common/ErrorState.vue'
 import ParseResultPreview from '@/components/business/ParseResultPreview.vue'
@@ -94,10 +163,16 @@ export default {
   setup() {
     const importStore = useImportStore()
 
-    // 页面阶段: input → parsing → result → extracting → (navigate)
+    // 从 URL 参数读取输入模式
+    const pages = getCurrentPages()
+    const query = pages[pages.length - 1].options || {}
+    const inputMode = ref(query.mode || 'ocr')
+
+    // 页面阶段: input → ocr-processing / parsing → result → extracting → (navigate)
     const phase = ref('input')
     const parsing = ref(false)
     const rawText = ref(importStore.rawText || '')
+    const images = ref([])
     const messageCount = computed(() => {
       if (!rawText.value) return 0
       return rawText.value.split('\n').filter(l => l.trim()).length
@@ -118,7 +193,6 @@ export default {
 
       // 根据 store 步骤同步本地 phase
       if (storeStep === 'result' || storeStep === 'report') {
-        // 用户从报告页返回 → 回到结果阶段
         if (importStore.parseResult) {
           parseResult.value = importStore.parseResult
           selectedSpeakers.value = importStore.selectedSpeaker
@@ -129,10 +203,45 @@ export default {
       }
     })
 
-    // rawText 变更时同步回 store（防止页面切换丢失）
+    // rawText 变更时同步回 store
     watch(rawText, (val) => {
       importStore.setRawText(val)
     })
+
+    function toggleMode() {
+      inputMode.value = inputMode.value === 'ocr' ? 'paste' : 'ocr'
+    }
+
+    function chooseImages() {
+      const remaining = 9 - images.value.length
+      if (remaining <= 0) return
+      uni.chooseImage({
+        count: remaining,
+        sizeType: ['compressed'],
+        sourceType: ['album', 'camera'],
+        success: (res) => {
+          images.value.push(...res.tempFilePaths)
+        }
+      })
+    }
+
+    function removeImage(index) {
+      images.value.splice(index, 1)
+    }
+
+    async function onOcrRecognize() {
+      if (images.value.length === 0) return
+      phase.value = 'ocr-processing'
+      try {
+        const text = await ocrRecognize(images.value)
+        rawText.value = text
+        inputMode.value = 'paste'
+        phase.value = 'input'
+      } catch (e) {
+        errorMessage.value = e.message || '识别失败，请重试'
+        phase.value = 'error'
+      }
+    }
 
     function showFormatTips() {
       uni.showModal({
@@ -148,14 +257,12 @@ export default {
       phase.value = 'parsing'
       importStore.setRawText(rawText.value)
 
-      // 使用 setTimeout 让 UI 有机会更新
       setTimeout(() => {
         try {
           const result = parse(rawText.value)
           if (result.success) {
             parseResult.value = result
             importStore.setParseResult(result)
-            // 自动选择第一个非空说话人
             if (result.speakers.length > 0) {
               selectedSpeakers.value = [result.speakers[0].name]
             }
@@ -182,7 +289,6 @@ export default {
       const targetSpeaker = speakerNames[0]
       importStore.setSelectedSpeaker(targetSpeaker)
 
-      // 进入提取阶段
       phase.value = 'extracting'
       runFeatureExtraction(targetSpeaker)
     }
@@ -191,7 +297,6 @@ export default {
       const messages = parseResult.value.messages
       let currentProgress = 0
 
-      // 模拟进度动画（实际计算很快，但给用户视觉反馈）
       const timer = setInterval(() => {
         currentProgress += Math.random() * 15 + 5
         if (currentProgress > 90) {
@@ -201,7 +306,6 @@ export default {
         progress.value = Math.min(currentProgress, 90)
       }, 200)
 
-      // 执行真实特征提取
       setTimeout(() => {
         try {
           const result = generate(messages, targetSpeaker)
@@ -231,8 +335,9 @@ export default {
     }
 
     return {
-      phase, parsing, rawText, messageCount, parseResult,
-      selectedSpeakers, progress, errorMessage,
+      phase, parsing, rawText, images, messageCount, parseResult,
+      selectedSpeakers, progress, errorMessage, inputMode,
+      toggleMode, chooseImages, removeImage, onOcrRecognize,
       showFormatTips, onParse, onUpdateSpeakers,
       onConfirmSpeaker, onRetry
     }
@@ -245,7 +350,7 @@ export default {
 
 .page { min-height: 100vh; background: $ink-bg; padding: 24rpx; }
 
-// ── 粘贴阶段（入场序列） ──
+// ── 输入阶段 ──
 .phase-input {
   animation: phaseEnter 0.4s $ease-out both;
 }
@@ -271,6 +376,119 @@ export default {
     margin-top: 6rpx;
     display: block;
   }
+}
+
+// ── OCR 截图区域 ──
+.ocr-section {
+  margin-bottom: 20rpx;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.image-item {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.image-thumb {
+  width: 100%;
+  height: 100%;
+}
+
+.image-delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 36rpx;
+  height: 36rpx;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 0 $radius-sm;
+}
+
+.delete-icon {
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.add-image-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 160rpx;
+  height: 160rpx;
+  background: $ink-surface;
+  border: 2rpx dashed $ink-border;
+  border-radius: $radius-sm;
+  transition: border-color $transition-fast;
+
+  &:active {
+    border-color: $ink-primary;
+  }
+}
+
+.add-btn-compact {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+.add-icon {
+  font-size: 48rpx;
+  color: $ink-text-tertiary;
+  line-height: 1;
+}
+
+.add-text {
+  font-size: $font-xs;
+  color: $ink-text-secondary;
+  margin-top: 4rpx;
+}
+
+.ocr-btn {
+  width: 100%;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $ink-primary, $ink-primary-dark);
+  color: #fff;
+  border-radius: $radius-md;
+  font-size: $font-md;
+  font-weight: 600;
+  margin-top: 16rpx;
+}
+
+.ocr-btn-label { line-height: 1; }
+
+// ── 文本输入区域 ──
+.text-area-wrap {
+  margin-bottom: 16rpx;
+}
+
+.ocr-result-label {
+  margin-bottom: 12rpx;
+}
+
+.result-tag {
+  font-size: $font-xs;
+  color: $ink-primary;
+  background: $ink-primary-light;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-full;
+  font-weight: 500;
 }
 
 .paste-area {
@@ -305,8 +523,21 @@ export default {
 }
 .warning-text { font-size: $font-sm; color: #B89440; line-height: 1.5; }
 
+// ── 切换方式 ──
+.mode-switch {
+  padding: 20rpx 0;
+  text-align: center;
+}
+
+.switch-text {
+  font-size: $font-sm;
+  color: $ink-primary;
+  text-decoration: underline;
+}
+
+// ── 解析按钮 ──
 .parse-btn-wrap {
-  margin-top: 16rpx;
+  margin-top: 8rpx;
 }
 
 .parse-btn {
@@ -326,6 +557,12 @@ export default {
   .btn-label {
     line-height: 1;
   }
+}
+
+// ── OCR 识别中 ──
+.ocr-processing-view {
+  padding: 60rpx 40rpx;
+  text-align: center;
 }
 
 // ── 居中过渡阶段 ──
