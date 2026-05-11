@@ -67,7 +67,7 @@
         </view>
 
         <!-- 底部占位，用于滚动定位 -->
-        <view id="msg-bottom" class="list-bottom" />
+        <view :id="'bottom-' + scrollRevision" class="list-bottom" />
       </view>
     </scroll-view>
   </view>
@@ -88,11 +88,28 @@ export default {
     hasMore: { type: Boolean, default: true }
   },
   emits: ['loadMore'],
+  data() {
+    return {
+      scrollRevision: 0,
+    }
+  },
+  watch: {
+    messages: {
+      handler(val, oldVal) {
+        // 仅在尾部追加新消息时滚动（忽略历史加载和消息状态更新）
+        if (val.length && (!oldVal || !oldVal.length)) {
+          this.scrollRevision++
+        } else if (val.length && oldVal && val[val.length - 1] !== oldVal[oldVal.length - 1]) {
+          this.scrollRevision++
+        }
+      },
+      deep: true,
+    },
+  },
   computed: {
     scrollTarget() {
-      if (this.typing) return 'msg-bottom'
-      const last = this.messages.length
-      return last ? 'msg-' + (this.messages[last - 1].id || (last - 1)) : ''
+      if (this.messages.length === 0) return ''
+      return 'bottom-' + this.scrollRevision
     }
   },
   methods: {
@@ -132,9 +149,10 @@ export default {
 @use '../common/variables' as *;
 
 .ai-chat-message-list {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
   background: $ink-bg;
 }
 
@@ -144,7 +162,7 @@ export default {
 }
 
 .list-inner {
-  padding: 20rpx 0;
+  padding: 20rpx 0 120rpx;
 }
 
 .list-loading {

@@ -102,7 +102,14 @@ export default {
     })
 
     function goChat(role) {
-      chatStore.createSession(role.id, role.name)
+      const existing = chatStore.sessions.find(
+        s => s.roleId === role.id && s.status === 'active'
+      )
+      if (existing) {
+        chatStore.switchSession(existing.id)
+      } else {
+        chatStore.createSession(role.id, role.name)
+      }
       uni.switchTab({ url: '/pages/chat/chat' })
     }
 

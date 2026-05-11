@@ -13,7 +13,7 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "AI 模拟对话"
+        "navigationBarTitleText": "角色"
       }
     },
     {
@@ -107,7 +107,7 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页"
+        "text": "角色"
       },
       {
         "pagePath": "pages/chat/chat",

@@ -1,0 +1,6 @@
+{
+  "name": "baidu-ocr",
+  "version": "1.0.0",
+  "description": "百度 OCR 文字识别 — 接收截图返回识别文字",
+  "main": "index.js"
+}
