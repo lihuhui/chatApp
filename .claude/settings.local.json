@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for d:*)",
+      "Bash(do echo:*)",
+      "Read(//d/ai/chatApp/$d/**)",
+      "Bash(done)"
+    ]
+  }
+}

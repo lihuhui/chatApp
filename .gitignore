@@ -14,9 +14,6 @@ unpackage/
 *.swp
 *.swo
 
-# Claude Code 个人配置
-.claude/
-
 # OS files
 .DS_Store
 Thumbs.db
